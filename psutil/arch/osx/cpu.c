@@ -40,8 +40,11 @@ PyObject *
 psutil_cpu_count_logical(PyObject *self, PyObject *args) {
     int num;
 
-    if (psutil_sysctlbyname("hw.logicalcpu", &num, sizeof(num)) != 0)
+    if (psutil_sysctlbyname("hw.logicalcpu", &num, sizeof(num)) != 0) {
+        psutil_debug("sysctlbyname('hw.logicalcpu') failed; returning None");
+        PyErr_Clear();
         Py_RETURN_NONE;
+    }
     return Py_BuildValue("i", num);
 }
 
@@ -50,8 +53,11 @@ PyObject *
 psutil_cpu_count_cores(PyObject *self, PyObject *args) {
     int num;
 
-    if (psutil_sysctlbyname("hw.physicalcpu", &num, sizeof(num)) != 0)
+    if (psutil_sysctlbyname("hw.physicalcpu", &num, sizeof(num)) != 0) {
+        psutil_debug("sysctlbyname('hw.physicalcpu') failed; returning None");
+        PyErr_Clear();
         Py_RETURN_NONE;
+    }
     return Py_BuildValue("i", num);
 }
 
@@ -355,11 +361,13 @@ psutil_cpu_freq(PyObject *self, PyObject *args) {
     if (psutil_sysctlbyname("hw.cpufrequency_min", &min, sizeof(min)) != 0) {
         min = 0;
         psutil_debug("sysctlbyname('hw.cpufrequency_min') failed (set to 0)");
+        PyErr_Clear();
     }
 
     if (psutil_sysctlbyname("hw.cpufrequency_max", &max, sizeof(max)) != 0) {
         max = 0;
         psutil_debug("sysctlbyname('hw.cpufrequency_max') failed (set to 0)");
+        PyErr_Clear();
     }
 
     return Py_BuildValue(
